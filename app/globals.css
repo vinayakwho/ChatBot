@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  /* Next.js default font stack with Inter */
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #09090b; /* Very dark background */
+  color: #fafafa;
+  /* Prevent scrolling bounce on mobile */
+  overscroll-behavior-y: none;
+}
+
+/* Custom scrollbar to match sleek ui */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.glow-text {
+  background: linear-gradient(90deg, #ff4081, #a64dff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Base utility for smooth flex column layout on varying screen sizes */
+.mobile-view-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  /* 100dvh is better for mobile browsers with dynamic UI */
+  height: 100dvh;
+  width: 100%;
+  /* Removed max-width to allow the parent container in page.tsx to define the desktop boundaries */
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  background-color: #09090b;
+}
+
+/* Pulsing voice blob animation */
+@keyframes pulse-ring {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.1); opacity: 0.2; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
