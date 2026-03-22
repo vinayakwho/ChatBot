@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, Search, ArrowUpRight, Sparkles, Image as ImageIcon, Code, MessageSquareText } from 'lucide-react';
+import { Menu, Search, ArrowUpRight, Sparkles, Image as ImageIcon, Code, MessageSquareText, Mic } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type HomeViewProps = {
@@ -88,7 +88,7 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
         </div>
         <input
           type="text"
-          className="w-full bg-black border border-white/20 rounded-full py-4 pl-12 pr-4 text-white placeholder-white/40 focus:outline-none focus:border-accent-pink focus:ring-1 focus:ring-accent-pink transition-all shadow-lg text-sm"
+          className="w-full bg-black border border-white/20 rounded-full py-4 pl-12 pr-12 text-white placeholder-white/40 focus:outline-none focus:border-accent-pink focus:ring-1 focus:ring-accent-pink transition-all shadow-lg text-sm"
           placeholder="Ask about iPhone specs..."
           onKeyDown={(e) => {
             if (e.key === 'Enter' && e.currentTarget.value.trim()) {
@@ -96,6 +96,12 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
             }
           }}
         />
+        <button
+          onClick={() => onNavigate('voice')}
+          className="absolute inset-y-0 right-4 flex items-center justify-center text-white/50 hover:text-white transition-colors"
+        >
+          <Mic className="w-5 h-5" />
+        </button>
       </motion.div>
 
       {/* Tool Cards (Horizontal Scroll) */}
