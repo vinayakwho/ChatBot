@@ -1,16 +1,84 @@
 'use client';
 
-import { ChevronLeft, MoreVertical, Mic, RotateCcw, X, Sparkles } from 'lucide-react';
+import { ChevronLeft, MoreVertical, Mic, RotateCcw, X, Sparkles, Square } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
 
 type VoiceViewProps = {
   onBack: () => void;
   onClose: () => void;
+  onResult?: (text: string) => void;
   title?: string;
   subtitle?: string;
 };
 
-export default function VoiceView({ onBack, onClose, title = 'Text writer', subtitle = 'Marketing in 2025' }: VoiceViewProps) {
+export default function VoiceView({ onBack, onClose, onResult, title = 'Text writer', subtitle = 'Marketing in 2025' }: VoiceViewProps) {
+  const [transcript, setTranscript] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        
+        recognition.onstart = () => setIsListening(true);
+        
+        recognition.onresult = (e: any) => {
+          let currentTranscript = '';
+          for (let i = 0; i < e.results.length; i++) {
+            currentTranscript += e.results[i][0].transcript;
+          }
+          setTranscript(currentTranscript);
+        };
+        
+        recognition.onerror = (e: any) => {
+          console.error('Speech recognition error:', e.error);
+          setIsListening(false);
+        };
+        
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+        
+        recognitionRef.current = recognition;
+      }
+    }
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  const toggleListen = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      if (transcript.trim() && onResult) {
+        onResult(transcript.trim());
+      }
+    } else {
+      setTranscript('');
+      try {
+        recognitionRef.current?.start();
+      } catch (e) {
+        console.error("Could not start speech recognition:", e);
+      }
+    }
+  };
+
+  const handleReset = () => {
+    setTranscript('');
+    if (!isListening) {
+      try {
+        recognitionRef.current?.start();
+      } catch(e) {}
+    }
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: '100%' }}
@@ -59,7 +127,7 @@ export default function VoiceView({ onBack, onClose, title = 'Text writer', subt
                borderRadius: ["60% 40% 30% 70%/60% 30% 70% 40%", "30% 60% 70% 40%/50% 60% 30% 60%", "60% 40% 30% 70%/60% 30% 70% 40%"]
              }}
              transition={{ duration: 8, ease: "linear", repeat: Infinity }}
-             className="absolute w-48 h-48 bg-gradient-glow opacity-60 blur-xl blend-screen"
+             className="absolute w-48 h-48 bg-gradient-glow opacity-60 blur-xl mix-blend-screen"
            />
            <motion.div 
              animate={{ 
@@ -74,23 +142,30 @@ export default function VoiceView({ onBack, onClose, title = 'Text writer', subt
            <div className="relative z-10 w-40 h-40 bg-gradient-radial from-accent-purple/80 to-transparent rounded-full backdrop-blur-3xl animate-pulse-ring" />
         </div>
 
-        <div className="mt-16 px-8 text-center max-w-sm mx-auto">
-           <h3 className="text-xl font-medium text-white shadow-sm leading-snug">
-              Tell me about this year's top 5 trends <span className="text-white/40">|</span> <span className="text-white/40">for instagram marketers</span>
+        <div className="mt-16 px-8 text-center max-w-lg mx-auto min-h-[5rem] flex items-center justify-center">
+           <h3 className="text-xl md:text-2xl font-medium text-white shadow-sm leading-snug">
+              {transcript ? (
+                <span>{transcript} <span className="text-white/40 animate-pulse">|</span></span>
+              ) : (
+                <span className="text-white/50">{isListening ? 'Listening...' : 'Tap the mic to speak'}</span>
+              )}
            </h3>
         </div>
       </div>
 
       {/* Bottom Controls */}
       <div className="absolute bottom-10 left-0 right-0 flex items-center justify-center gap-8 z-10">
-         <button className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10 transition text-white/60 hover:text-white">
+         <button onClick={handleReset} className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10 transition text-white/60 hover:text-white">
            <RotateCcw className="w-5 h-5" />
          </button>
          
          <div className="relative group">
-           <div className="absolute -inset-2 bg-gradient-glow rounded-full blur-md opacity-40 group-hover:opacity-75 transition duration-500 animate-pulse-ring" />
-           <button className="relative w-20 h-20 rounded-full bg-gradient-glow border-4 border-black flex items-center justify-center text-white shadow-2xl">
-             <Mic className="w-8 h-8" />
+           <div className={`absolute -inset-2 bg-gradient-glow rounded-full blur-md transition duration-500 ${isListening ? 'animate-pulse-ring opacity-100' : 'opacity-40 group-hover:opacity-75'}`} />
+           <button 
+             onClick={toggleListen}
+             className={`relative w-20 h-20 rounded-full border-4 flex items-center justify-center text-white shadow-2xl transition-all duration-300 ${isListening ? 'bg-accent-pink border-white glow-pulse' : 'bg-gradient-glow border-black'}`}
+           >
+             {isListening ? <Square className="w-6 h-6 fill-white" /> : <Mic className="w-8 h-8" />}
            </button>
          </div>
          

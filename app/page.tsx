@@ -46,6 +46,7 @@ export default function HomePage() {
                key="voice" 
                onBack={() => setCurrentView('chat')}
                onClose={() => setCurrentView('home')}
+               onResult={(text) => handleNavigate('chat', chatTheme.title, chatTheme.subtitle, text)}
                title={chatTheme.title}
                subtitle={chatTheme.subtitle}
              />
